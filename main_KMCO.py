@@ -3,6 +3,10 @@
 from src.loader import load_prices_csv
 from src.returns import calc_simple_returns
 from src.engine import backtest_portfolio
+from pathlib import Path
+
+from src.reporting.charts import plot_nav, plot_drawdown, plot_monthly_returns
+from src.reporting.tables import export_summary_table, export_monthly_table
 
 # Metrics (tout est déjà dans src/metrics.py chez toi)
 from src.metrics import (
@@ -199,6 +203,40 @@ print("\nAllocation cible")
 print("--------------")
 for k, w in weights.items():
     print(f"{k:<10} {w*100:>6.2f}%")
+
+# -----------------------
+# REPORTING (FIGURES/TABLES)
+# -----------------------
+
+reports_fig = "reports/figures"
+reports_tab = "reports/tables"
+
+# NAV = val, Returns = rets (déjà calculés plus haut)
+drawdown = (val / val.cummax()) - 1
+
+# Rendements mensuels (correct : produit, pas somme)
+monthly_rets = (1 + rets).resample("M").prod() - 1
+
+# Summary table (valeurs numériques finales, pas fonctions)
+summary = {
+    "Total Return": float(stats["Total Return"]),
+    "CAGR": float(stats["CAGR"]),
+    "Volatility": float(stats["Volatility"]),
+    "Sharpe": float(stats["Sharpe"]),
+    "Max Drawdown": float(stats["Max Drawdown"]),
+}
+
+# Plots
+plot_nav(val, reports_fig)
+plot_drawdown(drawdown, reports_fig)
+plot_monthly_returns(monthly_rets, reports_fig)
+
+# Tables
+export_summary_table(summary, reports_tab)
+export_monthly_table(monthly_rets, reports_tab)
+BASE_DIR = Path(__file__).resolve().parent
+reports_fig = str(BASE_DIR / "reports" / "figures")
+reports_tab = str(BASE_DIR / "reports" / "tables")
 
 # -----------------------
 # NOTES (INTERPRÉTATION COURTE)
