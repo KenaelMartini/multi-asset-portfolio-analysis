@@ -1,78 +1,104 @@
 # Multi-Asset Portfolio Analysis
 
-Python-based project for analysing the historical behaviour of a diversified set of financial assets.
+A reproducible Python backtest of a diversified nine-asset allocation, with quarterly rebalancing, explicit transaction costs and detailed performance, drawdown and tail-risk analytics.
 
-The objective is to compare returns, volatility and risk-adjusted performance across several asset classes, while building a clearer understanding of portfolio construction and historical market relationships.
+## Research design
 
-## Scope
+| Parameter | Implementation |
+|---|---|
+| Historical window | 2017–2026 |
+| Assets | 9 ETF and index proxies |
+| Rebalancing | Quarterly |
+| Transaction costs | 5 bps on turnover |
+| Starting NAV | 100 |
+| Analytics | 20+ performance and risk metrics |
 
-The analysis may include assets such as:
+### Target allocation
 
-- equity indices;
-- government bonds;
-- gold and other defensive assets;
-- cryptocurrencies;
-- diversified portfolio combinations.
+| Sleeve | Weight |
+|---|---:|
+| MSCI World | 17.78% |
+| World Quality Dividend | 8.89% |
+| Europe equities | 11.11% |
+| Asia-Pacific equities | 6.67% |
+| Euro government bonds | 11.11% |
+| US Treasuries | 11.11% |
+| US inflation-linked bonds | 11.11% |
+| Gold | 11.11% |
+| US real estate | 11.11% |
 
-## Main analyses
+## Latest committed output
 
-The project focuses on:
+| Metric | Result |
+|---|---:|
+| Total return | 82.71% |
+| CAGR | 7.36% |
+| Annualised volatility | 7.98% |
+| Sharpe ratio | 0.93 |
+| Maximum drawdown | -15.56% |
 
-- downloading and cleaning historical price data;
-- calculating daily and cumulative returns;
-- annualising returns and volatility;
-- comparing risk-adjusted performance;
-- studying drawdowns and historical behaviour;
-- visualising the growth of an initial investment;
-- evaluating diversification across asset classes.
+These figures reproduce the latest summary file committed to the repository. They are historical backtest outputs, not forecasts.
 
-## Metrics
+![Portfolio NAV](reports/figures/fig_nav.png)
 
-Depending on the analysis, the project may use:
+![Portfolio drawdown](reports/figures/fig_drawdown.png)
 
-- cumulative return;
-- annualised return;
-- annualised volatility;
-- Sharpe ratio;
-- maximum drawdown;
-- correlation matrices;
-- portfolio-level performance measures.
+## Pipeline
 
-## Technologies
+1. Download adjusted historical prices for the nine proxies.
+2. Align the dataset to dates shared by every asset.
+3. Calculate daily simple returns.
+4. Apply target weights with quarterly rebalancing.
+5. Deduct 5 bps from portfolio turnover.
+6. Calculate performance, drawdown, distribution and tail-risk metrics.
+7. Export charts and CSV tables to `reports/`.
 
-- Python
-- pandas
-- NumPy
-- Matplotlib
-- yfinance
+## Reproduce the analysis
 
-## Methodology
+```bash
+git clone https://github.com/KenaelMartini/multi-asset-portfolio-analysis.git
+cd multi-asset-portfolio-analysis
+python -m venv .venv
+```
 
-The general workflow is:
+Activate the environment and install the minimal dependencies:
 
-1. collect adjusted historical market prices;
-2. clean and align the time series;
-3. calculate periodic returns;
-4. estimate annualised performance and risk metrics;
-5. compare individual assets and portfolio combinations;
-6. visualise the results and document the main limitations.
+```bash
+# Windows
+.venv\Scripts\activate
+python -m pip install pandas numpy matplotlib yfinance
+
+# macOS / Linux
+source .venv/bin/activate
+python -m pip install pandas numpy matplotlib yfinance
+```
+
+Download the data and run the nine-asset backtest:
+
+```bash
+python scripts/download_data_kmco.py
+python main_KMCO.py
+```
+
+## Repository structure
+
+```text
+data/                    Historical price matrices
+scripts/                 Data-download scripts
+src/                     Backtest engine, metrics and reporting modules
+reports/figures/         Generated NAV, drawdown and return charts
+reports/tables/          Generated summary and monthly-return tables
+main_KMCO.py             Nine-asset portfolio analysis
+main.py                  Simpler four-asset reference allocation
+```
 
 ## Limitations
 
-Historical performance does not predict future results.
-
-The analysis may be affected by:
-
-- the selected time period;
-- missing or inconsistent data;
-- simplified assumptions;
-- the absence of transaction costs, taxes and slippage;
-- the use of historical estimates for future-oriented conclusions.
-
-## Repository status
-
-This project is a learning and research project. It is intended to document progress in financial data analysis, portfolio evaluation and quantitative methods.
+- The universe uses tradable proxies and does not model every implementation constraint.
+- Results are sensitive to the common-history window, data source and rebalancing assumptions.
+- Taxes, bid-ask spreads, market impact and currency-hedging costs are not fully modelled.
+- Historical performance does not predict future results.
 
 ## Disclaimer
 
-This repository is provided for educational and research purposes only. Nothing published here constitutes financial advice, an investment recommendation or portfolio-management services.
+For educational and independent research purposes only. Nothing in this repository constitutes financial advice, an investment recommendation or a regulated financial service.
