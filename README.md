@@ -92,6 +92,10 @@ main_KMCO.py             Nine-asset portfolio analysis
 main.py                  Simpler four-asset reference allocation
 ```
 
+## Development approach
+
+This project was developed through an AI-assisted workflow. I directed the allocation assumptions, rebalancing and cost methodology, iteratively evaluated and integrated generated code, and remained responsible for data validation, metric verification, interpretation and final outputs.
+
 ## Limitations
 
 - The universe uses tradable proxies and does not model every implementation constraint.
