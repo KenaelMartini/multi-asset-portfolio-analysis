@@ -96,7 +96,7 @@ def backtest_portfolio(
     pd.DataFrame
         Colonnes : 
         - value : valeur du portefeuille 
-        - ret   : rendement du portefeuille par période
+        - ret   : rendement net de la période, après coûts de rééquilibrage
     """
 
     # Validation minimale
@@ -129,6 +129,9 @@ def backtest_portfolio(
 
     # Boucle date par date ( simple, explicite; optimisable plus tard )
     for dt in dates:
+        # Valeur avant le rendement du jour et les éventuels coûts de rééquilibrage
+        value_before_period = value
+
         # Returns de la date ; NaN remplacés par 0 ( actif manquant ce jour la )
         r = returns.loc[dt].fillna(0.0)
 
@@ -155,8 +158,11 @@ def backtest_portfolio(
             # On remet les poids exactement a la cible
             w = w_target.copy()
 
-        # Sauvegarde ( date, valeur, rendement période )
-        out.append((dt, value, port_r))
+        # Rendement net cohérent avec la NAV après frais de rééquilibrage
+        net_port_r = value / value_before_period - 1.0
+
+        # Sauvegarde ( date, valeur, rendement net de la période )
+        out.append((dt, value, net_port_r))
 
     # Construction d'un DataFrame résultat
     res = pd.DataFrame(out, columns=["Date", "value", "ret"]).set_index("Date")
