@@ -47,7 +47,7 @@ def print_block(title: str, rows: list[tuple[str, str]]):
 # PARAMÈTRES BACKTEST
 # -----------------------
 
-periods = 252     # daily
+# Les observations communes aux places boursières ne correspondent pas nécessairement à 252 jours/an.
 rf = 0.0          # taux sans risque annualisé
 tc_bps = 5.0      # coûts (bps) sur turnover
 rebalance_freq = "Q"
@@ -69,6 +69,15 @@ weights = {
 # -----------------------
 
 prices = load_prices_csv("data/prices_kmco.csv")
+
+# Contrôles pré-backtest : historique ordonné et données complètes.
+if prices.index.has_duplicates or not prices.index.is_monotonic_increasing:
+    raise ValueError("Dates de prix dupliquées ou non triées.")
+if set(prices.columns) != set(weights):
+    raise ValueError("Les actifs du CSV ne correspondent pas aux poids du portefeuille.")
+if prices.isna().any().any():
+    raise ValueError("Prix manquants : régénérer le CSV avec l'historique commun.")
+
 returns = calc_simple_returns(prices)
 
 res = backtest_portfolio(
@@ -83,6 +92,14 @@ res = backtest_portfolio(
 rets = res["ret"].dropna()
 val = res["value"].dropna()
 
+# Annualisation selon la fréquence réelle des observations du calendrier commun.
+if len(rets) < 2:
+    raise ValueError("Historique insuffisant pour annualiser les performances.")
+days_elapsed = (rets.index[-1] - rets.index[0]).days
+if days_elapsed <= 0:
+    raise ValueError("Période historique invalide.")
+periods = (len(rets) - 1) * 365.25 / days_elapsed
+print(f"Observations moyennes par année calendaire : {periods:.2f}")
 
 best, worst = best_worst(rets)
 dd_info = max_dd_info(val)
