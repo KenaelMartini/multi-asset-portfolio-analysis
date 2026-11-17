@@ -232,7 +232,7 @@ reports_tab = "reports/tables"
 drawdown = (val / val.cummax()) - 1
 
 # Rendements mensuels (correct : produit, pas somme)
-monthly_rets = (1 + rets).resample("M").prod() - 1
+monthly_rets = (1 + rets).resample("ME").prod() - 1
 
 # Summary table (valeurs numériques finales, pas fonctions)
 summary = {
