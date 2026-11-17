@@ -27,17 +27,25 @@ A reproducible Python backtest of a diversified nine-asset allocation, with quar
 | Gold | 11.11% |
 | US real estate | 11.11% |
 
-## Latest committed output
+## Latest backtest results
+
+The nine-asset historical backtest covers 13 June 2017 to 23 February 2026 (the common available data window). Results reflect the current code with 5 bps of transaction costs applied to turnover at quarterly rebalancing.
 
 | Metric | Result |
 |---|---:|
-| Total return | 82.71% |
-| CAGR | 7.36% |
-| Annualised volatility | 7.98% |
-| Sharpe ratio | 0.93 |
-| Maximum drawdown | -15.56% |
+| Final NAV (initial = 100) | 185.193 |
+| Total return | +85.16% |
+| CAGR | 7.34% |
+| Annualised return (arithmetic mean) | 7.36% |
+| Annualised volatility | 7.49% |
+| Sharpe ratio (risk-free rate = 0) | 0.983 |
+| Sortino ratio | 1.196 |
+| Maximum drawdown | -15.08% |
+| Calmar ratio | 0.487 |
+| Daily VaR (95%) | -0.67% |
+| Daily CVaR (95%) | -1.15% |
 
-These figures reproduce the latest summary file committed to the repository. They are historical backtest outputs, not forecasts.
+The annualisation uses approximately 245.91 observations per calendar year in the common-date sample. Values are rounded from the latest backtest run; the five headline metrics can be reproduced from `reports/tables/table_summary.csv`. These are historical backtest outputs, not forecasts. Data quality, cross-market closing times and implementation assumptions remain limitations.
 
 ![Portfolio NAV](reports/figures/fig_nav.png)
 
