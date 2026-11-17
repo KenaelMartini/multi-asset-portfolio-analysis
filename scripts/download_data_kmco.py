@@ -40,11 +40,39 @@ elif "Close" in raw.columns:
 else:
     raise ValueError("Ni 'Adj Close' ni 'Close' trouvés dans les données.")
 
-# Renommage colonnes
-data.columns = list(tickers.keys())
+# Association explicite des colonnes Yahoo aux actifs du portefeuille.
+# Ne pas renommer par position : Yahoo peut trier les tickers différemment.
+ticker_to_asset = {ticker: asset for asset, ticker in tickers.items()}
+if data.columns.has_duplicates:
+    raise ValueError("Colonnes de prix Yahoo dupliquées.")
 
-# Nettoyage : on garde uniquement la période où on a des prix pour TOUS les actifs
-data = data.dropna(how="any")
+missing = [ticker for ticker in tickers.values() if ticker not in data.columns]
+if missing:
+    raise ValueError(f"Tickers absents du téléchargement : {missing}")
+
+data = data.loc[:, list(tickers.values())].rename(columns=ticker_to_asset)
+data = data.reindex(columns=list(tickers.keys()))
+
+# Audit de couverture AVANT la sélection de l'historique commun.
+print("Couverture des données par actif (avant alignement) :")
+for asset in data.columns:
+    valid = data[asset].dropna()
+    if valid.empty:
+        raise ValueError(f"Aucune donnée disponible pour {asset}")
+    print(f"  {asset}: {valid.index[0].date()} -> {valid.index[-1].date()} ({len(valid)} observations)")
+
+# Dates communes aux neuf actifs : aucune date ni prix futur n'est injecté.
+aligned = data.dropna(how="any")
+if aligned.empty:
+    raise ValueError("Aucune date commune aux neuf actifs.")
+
+common_window = data.loc[aligned.index.min():aligned.index.max()]
+excluded_dates = len(common_window) - len(aligned)
+print(f"Dates exclues dans la fenêtre commune (calendriers/données manquantes) : {excluded_dates}")
+if excluded_dates:
+    print("Attention : les rendements successifs peuvent couvrir plusieurs jours calendaires.")
+
+data = aligned
 
 # Écriture
 out_path = Path("data/prices_kmco.csv")
